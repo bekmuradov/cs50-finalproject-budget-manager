@@ -1,0 +1,711 @@
+{% extends 'layout.html' %}
+{% block style %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/categories.css') }}">
+{% endblock %}
+{% block main %}
+<div class="row">
+    <div class="col">
+        <button type="submit" class="btn-purple mt-5" data-toggle="modal" data-target="#transactionModal">
+            <i class="material-icons md-36 float-left">add_circle</i>
+            <span class="btn" style="color: white;">Add Transaction</span>
+        </button>
+        <div class="modal fade" id="transactionModal" tabindex="-1" role="dialog"
+            aria-labelledby="transactionModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="transactionModalLabel">New Transaction</h5>
+                        <button type="button" class="close close-btn" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="" method="POST" id="form">
+                        <div class="modal-body">
+
+                            {{ form.hidden_tag() }}
+                            <fieldset class="form-group">
+                                <div class="row">
+                                    <div class="form-group col">
+                                        <small>
+                                            {{ form.category.label(class="form-control-label text-muted") }}
+                                        </small>
+
+                                        {% if form.category.errors %}
+                                        {{ form.category(class="form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.category.errors %}
+                                            <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        {% else %}
+
+                                        <div class="input-group" id="trial">
+                                            <div class="input-group-prepend">
+                                                <input type="text" style="max-width: 100px;" name="type" id="type"
+                                                    class="form-control btn btn-outline-secondary"
+                                                    aria-label="Text input with segmented dropdown button"
+                                                    value="Expense" readonly>
+                                                <button type="button"
+                                                    class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split"
+                                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <span class="sr-only">Categories Dropdown</span>
+                                                </button>
+                                                <div class="dropdown-menu accordion" id="categoryMenu"
+                                                    style="overflow: scroll; height: 200px; max-width: 15rem;">
+                                                </div>
+                                            </div>
+                                            <div class="form-control" id="categoryDiv"
+                                                aria-label="container to present budget categories"></div>
+                                            <input type="text" name="category" id="category" class="sr-only">
+                                        </div>
+
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="form-group col">
+                                        <small>
+                                            {{ form.date.label(class="form-control-label text-muted") }}
+                                        </small>
+
+                                        {% if form.date.errors %}
+                                        {{ form.date(class="form-control form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.date.errors %}
+                                            <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.date(class="form-control")}}
+                                        {% endif %}
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="form-group col">
+                                        <small>
+                                            {{ form.amount.label(class="form-control-label text-muted") }}
+                                        </small>
+
+                                        {% if form.amount.errors %}
+                                        {{ form.amount(class="form-control form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.amount.errors %}
+                                            <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.amount(class="form-control", placeholder="-0.00") }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group col">
+                                        <small>
+                                            {{ form.currency.label(class="form-control-label text-muted") }}
+                                        </small>
+
+                                        {% if form.currency.errors %}
+                                        {{ form.currency(class="form-control form-control is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.currency.errors %}
+                                            <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        {% else %}
+                                        {{ form.currency(class="form-control") }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <small>
+                                        {{ form.hashtag.label(class="form-control-label text-muted") }}
+                                    </small>
+
+                                    {% if form.hashtag.errors %}
+                                    {{ form.hashtag(class="form-control form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.hashtag.errors %}
+                                        <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    {{ form.hashtag(class="form-control", placeholder="#makro") }}
+                                    {% endif %}
+                                </div>
+
+                            </fieldset>
+
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary close-btn"
+                                data-dismiss="modal">Close</button>
+                            <div class="form-group">
+                                <input type="text" name="edit_id" id="edit_id" class="sr-only">
+                                {{ form.submit(class="btn-purple") }}
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4 mb-5">
+        <div class="card">
+            <!-- Delete Wallet Modal Trigger -->
+            <div style="margin-left: 93%; margin-top: 1%; cursor: pointer; margin-bottom: -8px;">
+                <i class="material-icons md-18" data-toggle="modal"
+                    data-target="#staticBackdrop">clear</i>
+            </div>
+            <a href="{{ url_for('transactions', wallet_id=wallet.id) }}" class="btn wallet">
+                <div class="media">
+                    <img src="{{ url_for('static', filename='img/profile_img/' + wallet.walletOwner.profile_image ) }}"
+                        class="align-self-center mr-3" alt="...">
+                    <div class="media-body">
+                        <h5 class="mt-0">{{ wallet.name }}</h5>
+                        <p class="amount"></p>
+                        <small>{{ wallet.date_created | datetimefilter }}</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for deleting wallets-->
+<div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h5 class="modal-title font-weight-bold" id="staticBackdropLabel">Delete wallet?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">NO</button>
+                <a href="{{ url_for('wallet_delete', wallet_id=wallet.id) }}" rel="noopener noreferrer">
+                    <button type="button" class="btn btn-danger">YES</button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row container-lg mb-3">
+    <div class="col-sm-7 mr-5">
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="accordion" id="accordionExample">
+                    <button class="btn btn-outline-secondary btn-purple-light" style="margin-right: .4rem;"
+                        type="button" data-toggle="collapse" data-target="#collapseExpense" aria-expanded="false"
+                        aria-controls="collapseExpense" id="expense">
+                        Expense
+                    </button>
+                    <button class="btn btn-outline-secondary btn-purple-light" type="button" data-toggle="collapse"
+                        data-target="#collapseIncome" aria-expanded="false" aria-controls="collapseIncome" id="income">
+                        Income
+                    </button>
+                </div>
+            </div>
+            <div class="col-auto b-d-e" style="margin-right: 0; display: none;">
+                <form action="{{url_for('delete_transaction', wallet_id=wallet.id)}}" method="POST" id="delete"
+                    style="margin-left: -1.5rem;">
+                    <button type="submit" id="btnDelete" class="btn">
+                        Delete
+                        <input type="text" name="id" id="transaction_id" class="sr-only">
+                        <span class="sr-only">button for deleting transactions</span>
+                    </button>
+                </form>
+            </div>
+            <div class="col-auto b-d-e" style="margin-left: -1.25rem; display: none;">
+                <button type="submit" id="btnEdit" class="btn">
+                    Edit
+                    <span class="sr-only">button for editing transactions</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <form action="" method="get" class="form-inline">
+            <label for="datepicker" style="margin-left: 0;" class="form-control-label datepicker">Sort by date</label>
+            <div class="input-daterange input-group ml-2" id="datepicker">
+                <input type="text" class="input-sm form-control" name="start"
+                    style="border: 1px solid transparent; border-radius: .25rem; width: 120px;" readonly />
+                <span class="input-group-addon" style="color: #7b93a4; font-size: 14px; padding-top: .5rem;">to</span>
+                <input type="text" class="input-sm form-control" name="end"
+                    style="border: 1px solid transparent; border-radius: .25rem; width: 120px;" readonly />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="collapse" id="collapseExpense">
+    <div class="card card-body">
+        <table class="table table-borderless table-hover">
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Category</th>
+                    <th scope="col" class="hashtag">Hashtag</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Date</th>
+                </tr>
+            </thead>
+            <tbody id="expenseTableBody">
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="collapse" id="collapseIncome">
+    <div class="card card-body">
+        <table class="table table-borderless table-hover">
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Category</th>
+                    <th scope="col" class="hashtag">Hashtag</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Date</th>
+                </tr>
+            </thead>
+            <tbody id="incomeTableBody">
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="fixed-bottom text-center">
+    <button type="submit" class="btn-purple" data-toggle="modal" data-target="#transactionModal">
+        <i class="material-icons md-48">add_circle</i>
+    </button>
+</div>
+
+<script>
+    // ECMAScript Internationalization API
+    const THB = new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' });
+
+    const USD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+    // By default expense table will be displayed
+    $('#collapseExpense').collapse({
+        toggle: true
+    });
+
+    // Toggles between expense table and income table
+    $("#expense").click(function () {
+        $("#collapseIncome").collapse("hide");
+    });
+    $("#income").click(function () {
+        $("#collapseExpense").collapse("hide");
+    });
+
+    // Data comes from backend
+    const data = JSON.parse('{{data|tojson|safe}}'); // General Categories Data
+    const expense = JSON.parse('{{dataExpense|tojson|safe}}'); // Expense data
+    const income = JSON.parse('{{dataIncome|tojson|safe}}'); // Income data
+
+    // Display wallet's balance and currency
+    const balance = JSON.parse('{{ balance|tojson|safe }}');
+    const para = document.querySelector(".amount");
+    const curWalletCurrency = currencyFormatter(balance[0][1]);
+    para.textContent = curWalletCurrency === "THB" ? THB.format(balance[0][0]) : USD.format(balance[0][0]);
+
+    /* For each data type we create separate containers
+        and then add the data and assign classNames and ids 
+        manually. 
+        Dropdown category list items
+    */
+    const categoryMenu = document.getElementById("categoryMenu");
+    const expenseDiv = document.createElement("div");
+    expenseDiv.id = "expenseDiv";
+    const incomeDiv = document.createElement("div");
+    incomeDiv.id = "incomeDiv";
+    for (let i = 0; i < data.length; i++) {
+
+        let div = document.createElement("div");
+        div.className = "dropdown-item categoryItem btn";
+        let icon = document.createElement("span");
+        icon.className = "material-icons md-light btn";
+        let name = document.createElement("span");
+        name.className = "categoryName";
+        if (data[i][0] === "Type.Expense") {
+            icon.style.backgroundColor = data[i][2];
+            icon.textContent = data[i][1];
+            name.textContent = data[i][3];
+            div.append(icon, name);
+            expenseDiv.append(div);
+            categoryMenu.append(expenseDiv);
+        }
+        else {
+            icon.style.backgroundColor = data[i][2];
+            icon.textContent = data[i][1];
+            name.textContent = data[i][3];
+            div.append(icon, name);
+            incomeDiv.append(div);
+            categoryMenu.append(incomeDiv);
+            incomeDiv.style.display = "none";
+        }
+    }
+
+
+    /* This section for add-transaction form
+        to set the background color of icon
+        and display the choosen value and icon
+        from dropdown category menu and assign value 
+        to category input field.
+        Set and display choosen category value
+    */
+    function displayChoosenCategory() {
+        const categoryValue = document.getElementById("categoryDiv");
+        let icon = document.createElement("span");
+        icon.className = "material-icons md-light btn";
+        icon.id = "choosenIcon";
+        let value = document.createElement("span");
+        value.id = "choosenValue";
+        categoryValue.append(icon, value);
+        const categoryItem = document.querySelectorAll(".categoryItem");
+        for (let i = 0; i < categoryItem.length; i++) {
+            categoryItem[i].onclick = (e) => {
+                if (e.target.parentNode.className === "dropdown-item categoryItem btn") {
+                    let categorySet = e.target.parentNode.children;
+                    document.getElementById("choosenIcon").textContent = categorySet[0].textContent;
+                    document.getElementById("choosenIcon").style.backgroundColor = categorySet[0].style.backgroundColor;
+                    document.getElementById("choosenValue").textContent = categorySet[1].textContent;
+                    document.getElementById("category").value = categorySet[1].textContent;
+                }
+            }
+        }
+    }
+    displayChoosenCategory();
+
+
+    /* Function to change value of type input field
+        on click.
+        Type value
+    */
+    const typeValue = $("#type");
+    const handler = () => {
+        if (typeValue.val() === "Income") {
+            typeValue.val("Expense");
+            document.getElementById("incomeDiv").style.display = "none";
+            document.getElementById("expenseDiv").style.display = "block";
+            document.getElementById("amount").setAttribute("placeholder", "-0.00");
+            document.getElementById("amount").classList.remove("green");
+            document.getElementById("amount").classList.add("red");
+        } else {
+            typeValue.val("Income");
+            document.getElementById("expenseDiv").style.display = "none";
+            document.getElementById("incomeDiv").style.display = "block";
+            document.getElementById("amount").setAttribute("placeholder", "0.00");
+            document.getElementById("amount").classList.remove("red");
+            document.getElementById("amount").classList.add("green");
+        }
+    }
+    typeValue.bind("click", handler)
+
+    /* Set background colors for icons in
+        categorys dropdown menu list
+    */
+    function categoryDropdownIconsBackColor() {
+        let iconBackColor = document.querySelectorAll(".iconBackColor");
+        for (let i = 0; i < iconBackColor.length; i++) {
+            iconBackColor[i].style.padding = "5px";
+            iconBackColor[i].style.borderRadius = "50%";
+        }
+    }
+    categoryDropdownIconsBackColor();
+
+
+    /* Display Expense type transactions table
+        Create all requeried html elements and 
+        assign classNames, ids. Assign values and
+        textContents.
+        Expense Transactions Table
+    */
+    function expenseTransactionsTable(data) {
+        const expenseTbody = document.getElementById("expenseTableBody");
+
+        // document.querySelector("badge").textContent = $('.checkbox :checked').size();
+        for (let i = 0; i < data.length; i++) {
+            const tr = document.createElement("tr");
+
+            const th = document.createElement("th");
+            th.setAttribute("scope", "row");
+
+            const input_group = document.createElement("div");
+            input_group.className = "input-group mb-3";
+
+            const input_group_prepend = document.createElement("div");
+            input_group_prepend.className = "input-group-prepend";
+
+            const input_group_text = document.createElement("div");
+            input_group_text.className = "input-group-text";
+
+            const labelCheckbox = document.createElement("label");
+            labelCheckbox.className = "label-checkbox";
+
+            const input = document.createElement("input");
+            input.type = "checkbox";
+            input.className = "checkbox";
+            input.setAttribute("aria-label", "Checkbox for following table row");
+            input.value = data[i][8]; // Transactions id for deleting
+
+            const customCheckbox = document.createElement("span");
+            customCheckbox.className = "custom-checkbox";
+
+            labelCheckbox.append(input, customCheckbox)
+            input_group_text.append(labelCheckbox);
+            input_group_prepend.append(input_group_text);
+            input_group.append(input_group_prepend);
+            th.append(input_group);
+
+            const td1 = document.createElement("td");
+            td1.style.minWidth = '100px';
+            const span1 = document.createElement("span");
+            span1.className = "material-icons md-24 md-light transaction-icon iconBackColor";
+            span1.style.backgroundColor = data[i][2];
+            span1.textContent = data[i][1];
+            const span2 = document.createElement("span");
+            span2.className = "transaction-name";
+            span2.textContent = data[i][3];
+            td1.append(span1, span2);
+
+            const td2 = document.createElement("td");
+            td2.className = "hashtag";
+            const span3 = document.createElement("span");
+            span3.className = "transaction-hashtag";
+            span3.textContent = data[i][5];
+            td2.append(span3);
+
+            const td3 = document.createElement("td");
+            const span4 = document.createElement("span");
+            span4.className = "transaction-amount";
+            span4.style.color = "crimson";
+            span4.textContent = curWalletCurrency === "THB" ? "-" + THB.format(data[i][6]) : "-" + USD.format(data[i][6]);
+            td3.append(span4);
+
+            const td4 = document.createElement("td");
+            const span6 = document.createElement("span");
+            span6.className = "transaction-date";
+            span6.textContent = new Date(data[i][4]).toDateString();
+            td4.append(span6);
+
+            tr.append(th, td1, td2, td3, td4);
+            expenseTbody.append(tr);
+        }
+    }
+    expenseTransactionsTable(expense);
+
+    /* Display Income type transactions table
+        Create all requeried html elements and 
+        assign classNames, ids. Assign values and
+        textContents.
+        Income Transactions Table
+    */
+    function incomeTransactionsTable(data) {
+        const incomeTbody = document.getElementById("incomeTableBody");
+        for (let i = 0; i < data.length; i++) {
+            const tr = document.createElement("tr");
+
+            const th = document.createElement("th");
+            th.setAttribute("scope", "row");
+            th.className = "td";
+
+            const input_group = document.createElement("div");
+            input_group.className = "input-group mb-3";
+
+            const input_group_prepend = document.createElement("div");
+            input_group_prepend.className = "input-group-prepend";
+
+            const input_group_text = document.createElement("div");
+            input_group_text.className = "input-group-text";
+
+            const labelCheckbox = document.createElement("label");
+            labelCheckbox.className = "label-checkbox";
+
+            const input = document.createElement("input");
+            input.type = "checkbox";
+            input.className = "checkbox";
+            input.setAttribute("aria-label", "Checkbox for following table row");
+            input.value = data[i][8]; // Transactions id for deleting
+
+            const customCheckbox = document.createElement("span");
+            customCheckbox.className = "custom-checkbox";
+
+            labelCheckbox.append(input, customCheckbox)
+            input_group_text.append(labelCheckbox);
+            input_group_prepend.append(input_group_text);
+            input_group.append(input_group_prepend);
+            th.append(input_group);
+
+            const td1 = document.createElement("td");
+            td1.style.minWidth = '100px';
+            const span1 = document.createElement("span");
+            span1.className = "material-icons md-24 md-light transaction-icon iconBackColor";
+            span1.style.backgroundColor = data[i][2];
+            span1.textContent = data[i][1];
+            const span2 = document.createElement("span");
+            span2.className = "transaction-name";
+            span2.textContent = data[i][3];
+            td1.append(span1, span2);
+
+            const td2 = document.createElement("td");
+            td2.className = "td hashtag";
+            const span3 = document.createElement("span");
+            span3.className = "transaction-hashtag";
+            span3.textContent = data[i][5];
+            td2.append(span3);
+
+            const td3 = document.createElement("td");
+            td3.className = "td";
+            const span4 = document.createElement("span");
+            span4.className = "transaction-amount";
+            span4.style.color = "deepskyblue";
+            span4.textContent = curWalletCurrency === "THB" ? THB.format(data[i][6]) : USD.format(data[i][6]);
+            td3.append(span4);
+
+            const td4 = document.createElement("td");
+            td4.className = "td";
+            const span6 = document.createElement("span");
+            span6.className = "transaction-date";
+            span6.textContent = new Date(data[i][4]).toDateString();
+            td4.append(span6);
+
+            tr.append(th, td1, td2, td3, td4);
+            incomeTbody.append(tr);
+        }
+    }
+    incomeTransactionsTable(income);
+
+    // Datepicker Object methods
+    $('.input-daterange').datepicker({
+        clearBtn: true,
+        calendarWeeks: true,
+        autoclose: true,
+        todayHighlight: true
+    });
+
+    // Sort by date function
+    let start;
+    let end;
+    let expenseSorted;
+    let incomeSorted;
+    $("#datepicker").on("changeDate", function () {
+        $(".input-sm").each(function (index) {
+            if (index === 0) {
+                start = $(this).val();
+            }
+            else if (index === 1) {
+                end = $(this).val();
+            }
+        });
+        expenseSorted = sortByDate(start, end, expense);
+        incomeSorted = sortByDate(start, end, income);
+        $("#expenseTableBody").empty();
+        $("#incomeTableBody").empty();
+        if (expenseSorted.length > 0) {
+            expenseTransactionsTable(expenseSorted);
+        }
+        if (incomeSorted.length > 0) {
+            incomeTransactionsTable(incomeSorted);
+        }
+        enableDeleteEditButtons();
+    });
+
+    const today = new Date();
+    $("input:text[name='start']").val(today.toLocaleDateString());
+    $("input:text[name='end']").val(today.toLocaleDateString())
+
+    let id = "";
+    // Enables Delete & Edit buttons on checkbox click;
+    $(document).ready(enableDeleteEditButtons);
+    function enableDeleteEditButtons() {
+        $('.checkbox').click(function () {
+            $('.checkbox').not(this).prop('checked', false);
+            if ($(this).prop('checked') === true) {
+                id = $(this).val();
+                $('#btnDelete').addClass('btn-red');
+                $('.b-d-e').show();
+                $('#btnEdit').addClass('btn-purple-light');
+            } else {
+                id = '';
+                $('.b-d-e').hide();
+                $('#btnDelete').removeClass('btn-red');
+                $('#btnEdit').removeClass('btn-purple-light');
+            }
+            // When delete transaction form submits it
+            // assings transaction's id value
+            $("#delete").submit(function () {
+                $("#transaction_id").val(id);
+            });
+            $("#btnEdit").click(getAjaxReq);
+        });
+    }
+    // When edit button clicked
+    // Modal shows up with prefilled values
+
+    // Edit Modal shows on edit button clicked
+    function getAjaxReq() {
+        $.ajax({
+            url: "/edit/ajax",
+            type: "GET",
+            data: {
+                id: id
+            },
+            dataType: "json"
+        })
+            .done(function (json) {
+                let type = json[5].replace("Type.", "");
+                if (type === "Expense") {
+                    $("#type").attr("value", "Expense");
+                } else {
+                    $("#type").attr("value", "Income");
+                }
+                $("#type").removeClass("btn btn-outline-secondary");
+                $("#type").unbind("click", handler);
+                $("#choosenIcon").text(json[6]);
+                $("#choosenIcon").css("background-color", json[7]);
+                $("#category").val(json[8]);
+                $("#choosenValue").text(json[8]);
+                $("#date").attr("value", json[1]);
+                $("#amount").val(parseFloat(json[2]));
+                $("#hashtag").attr("value", json[4]);
+                $("#submit").val("Edit Transaction");
+                $("#transactionModalLabel").text("Edit Transaction");
+                $("#edit_id").val(id);
+                $("#transactionModal").modal("show");
+
+
+                if ($(".close-btn").click(function (e) {
+                    let date = new Date();
+                    date = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate();
+                    $("#type").addClass("btn btn-outline-secondary");
+                    $("#type").bind("click", handler);
+                    $("#type").val("Expense");
+                    $("#category").val("");
+                    $("#choosenIcon").text("");
+                    $("#choosenIcon").css("background-color", "#7b93a4");
+                    $("#choosenValue").text("");
+                    $("#date").attr("value", date);
+                    document.getElementById("amount").value = "";
+                    $("#hashtag").val("");
+                    $("#submit").val("New Transaction");
+                    $("#transactionModalLabel").text("New Transaction");
+                }));
+            })
+            .fail(function (xhr, status, errorThrown) {
+                alert("Sorry, there was a problem!");
+                console.log("Error: " + errorThrown);
+                console.log("Status: " + status);
+                console.dir(xhr);
+            });
+    }
+
+
+</script>
+{% endblock %}
